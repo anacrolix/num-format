@@ -2,15 +2,16 @@
 
 use std::borrow::Cow;
 use std::collections::HashSet;
-use std::ffi::CStr;
 use std::ptr;
 use std::sync::{Arc, Mutex};
 
-use num_format_windows::{
-    LOCALE_NAME_MAX_LENGTH, LOCALE_NAME_SYSTEM_DEFAULT, LOCALE_SDECIMAL, LOCALE_SGROUPING,
-    LOCALE_SNAME, LOCALE_SNAN, LOCALE_SNEGATIVESIGN, LOCALE_SNEGINFINITY, LOCALE_SPOSINFINITY,
-    LOCALE_SPOSITIVESIGN, LOCALE_STHOUSAND,
+use windows_sys::Win32::Globalization::{
+    LOCALE_NAME_SYSTEM_DEFAULT, LOCALE_SDECIMAL, LOCALE_SGROUPING, LOCALE_SNAME, LOCALE_SNAN,
+    LOCALE_SNEGATIVESIGN, LOCALE_SNEGINFINITY, LOCALE_SPOSINFINITY, LOCALE_SPOSITIVESIGN,
+    LOCALE_STHOUSAND,
 };
+use windows_sys::Win32::System::SystemServices::LOCALE_NAME_MAX_LENGTH;
+
 use widestring::{U16CStr, U16CString};
 use winapi::ctypes::c_int;
 use winapi::shared::minwindef::{BOOL, DWORD, LPARAM};
@@ -24,18 +25,13 @@ use crate::strings::{DecString, InfString, MinString, NanString, PlusString, Sep
 use crate::system_locale::SystemLocale;
 
 lazy_static! {
-    static ref SYSTEM_DEFAULT: Result<&'static str, Error> = {
-        CStr::from_bytes_with_nul(LOCALE_NAME_SYSTEM_DEFAULT).map_err(|_| {
+    static ref SYSTEM_DEFAULT: Result<String, Error> = {
+        Ok(unsafe{U16CStr::from_ptr_str(LOCALE_NAME_SYSTEM_DEFAULT)}.to_string().map_err(|_| {
             Error::system_invalid_return(
                 "LOCALE_NAME_SYSTEM_DEFAULT",
                 "LOCALE_NAME_SYSTEM_DEFAULT from windows.h unexpectedly contains interior nul byte.",
             )
-        })?.to_str().map_err(|_| {
-            Error::system_invalid_return(
-                "LOCALE_NAME_SYSTEM_DEFAULT",
-                "LOCALE_NAME_SYSTEM_DEFAULT from windows.h unexpectedly contains invalid UTF-8.",
-            )
-        })
+        })?)
     };
 }
 

@@ -16,7 +16,7 @@ pub trait ToFormattedString: Sealed + Sized {
     #[doc(hidden)]
     fn read_to_fmt_writer<F, W>(&self, w: W, format: &F) -> Result<usize, fmt::Error>
     where
-        F: Format,
+        F: Format + ?Sized,
         W: fmt::Write;
 
     #[doc(hidden)]
@@ -28,7 +28,7 @@ pub trait ToFormattedString: Sealed + Sized {
     /// Returns a string representation of the number formatted according to the provided format.
     fn to_formatted_string<F>(&self, format: &F) -> String
     where
-        F: Format,
+        F: Format + ?Sized,
     {
         let mut s = String::with_capacity(MAX_BUF_LEN);
         let _ = self.read_to_fmt_writer(&mut s, format).unwrap();
@@ -43,7 +43,7 @@ where
     #[inline(always)]
     fn read_to_fmt_writer<F, W>(&self, mut w: W, format: &F) -> Result<usize, fmt::Error>
     where
-        F: Format,
+        F: Format + ?Sized,
         W: fmt::Write,
     {
         let mut buf = Buffer::default();

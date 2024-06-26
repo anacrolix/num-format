@@ -18,7 +18,7 @@ impl ToFormattedStr for u8 {
     #[inline(always)]
     fn read_to_buffer<'a, F>(&self, buf: &'a mut Buffer, _: &F) -> usize
     where
-        F: Format,
+        F: Format + ?Sized,
     {
         buf.write_with_itoa(*self)
     }
@@ -31,7 +31,7 @@ macro_rules! impl_unsigned {
             #[inline(always)]
             fn read_to_buffer<'a, F>(&self, buf: &'a mut Buffer, format: &F) -> usize
             where
-                F: Format,
+                F: Format + ?Sized,
             {
                 let n = *self as u128;
                 run_core_algorithm(n, buf, format)
@@ -62,7 +62,7 @@ macro_rules! impl_signed {
             #[inline(always)]
             fn read_to_buffer<'a, F>(&self, buf: &'a mut Buffer, format: &F) -> usize
             where
-                F: Format,
+                F: Format + ?Sized,
             {
                 if self.is_negative() {
                     let n = (!(*self as u128)).wrapping_add(1); // make positive by adding 1 to the 2s complement
@@ -105,7 +105,7 @@ impl ToFormattedStr for NonZeroU8 {
     #[inline(always)]
     fn read_to_buffer<'a, F>(&self, buf: &'a mut Buffer, _: &F) -> usize
     where
-        F: Format,
+        F: Format + ?Sized,
     {
         buf.write_with_itoa(self.get())
     }
@@ -118,7 +118,7 @@ macro_rules! impl_non_zero {
             #[inline(always)]
             fn read_to_buffer<'a, F>(&self, buf: &'a mut Buffer, format: &F) -> usize
             where
-                F: Format,
+                F: Format + ?Sized,
             {
                 let n = self.get() as u128;
                 run_core_algorithm(n, buf, format)
@@ -145,7 +145,7 @@ impl Sealed for NonZeroU128 {}
 #[inline(always)]
 fn run_core_algorithm<F>(mut n: u128, buf: &mut Buffer, format: &F) -> usize
 where
-    F: Format,
+    F: Format + ?Sized,
 {
     // Bail out early if we can just use itoa
     // (i.e. if we don't have a separator)

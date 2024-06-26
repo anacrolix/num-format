@@ -11,5 +11,5 @@ pub trait ToFormattedStr: Sealed + Sized {
     #[doc(hidden)]
     fn read_to_buffer<F>(&self, buf: &mut Buffer, format: &F) -> usize
     where
-        F: Format;
+        F: Format + ?Sized;
 }
